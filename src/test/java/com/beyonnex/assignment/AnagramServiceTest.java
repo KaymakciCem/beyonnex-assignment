@@ -26,9 +26,9 @@ class AnagramServiceTest {
 
     @Test
     void retrieveAllAnagrams_success() {
-        anagramService.isAnagram("cat", "tac");
-        anagramService.isAnagram("cat", "act");
-        anagramService.isAnagram("cat", "cta");
+        anagramService.saveAnagramsToMap("cat", "tac");
+        anagramService.saveAnagramsToMap("cat", "act");
+        anagramService.saveAnagramsToMap("cat", "cta");
 
         List<String> result = anagramService.retrieveAllAnagrams("cat");
         assertThat(result).containsExactlyElementsOf(List.of("tac", "act", "cta"));
