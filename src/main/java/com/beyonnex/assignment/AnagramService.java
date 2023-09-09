@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class AnagramService {
 
     private static int CHARACTER_RANGE= 256;
@@ -30,23 +33,27 @@ public class AnagramService {
                      .toList();
     }
 
-    private void saveAnagramsToMap(final String text1, final String text2) {
-        final Map<Character, Integer> anagramKey1 = toAnagramKey(text1);
+    public void saveAnagramsToMap(final String text1, final String text2) {
+        final Map<Character, Integer> anagramKey = toAnagramKey(text1);
 
-        if (allAnagramsMap.containsKey(anagramKey1)) {
-            if (!allAnagramsMap.get(anagramKey1).contains(text2)) {
-                allAnagramsMap.get(anagramKey1).add(text2);
+        allAnagramsMap.computeIfPresent(anagramKey, (key, val) -> {
+            if (!val.contains(text1)) {
+                val.add(text1);
             }
 
-            if (!allAnagramsMap.get(anagramKey1).contains(text1)) {
-                allAnagramsMap.get(anagramKey1).add(text1);
+            if (!val.contains(text2)) {
+                val.add(text2);
             }
-        } else {
+
+            return val;
+        });
+
+        allAnagramsMap.computeIfAbsent(anagramKey, c -> {
             final List<String> anagramTexts = new ArrayList<>();
             anagramTexts.add(text1);
             anagramTexts.add(text2);
-            allAnagramsMap.put(anagramKey1, anagramTexts);
-        }
+            return anagramTexts;
+        });
     }
 
     public boolean isAnagram(final String text1, final String text2) {
@@ -64,8 +71,6 @@ public class AnagramService {
             }
         }
 
-        saveAnagramsToMap(text1, text2);
-
         return true;
     }
 
@@ -73,14 +78,11 @@ public class AnagramService {
         final Map<Character, Integer> anagramKey = new HashMap<>();
 
         for (int i = 0; i < text.length(); i++) {
-            if (anagramKey.containsKey(text.charAt(i))) {
-                int x = anagramKey.get(text.charAt(i));
-                anagramKey.put(text.charAt(i), ++x);
-            }
-            else {
-                anagramKey.put(text.charAt(i), 1);
-            }
+            char anagramCharKey = text.charAt(i);
+            anagramKey.computeIfPresent(anagramCharKey, (key, val) -> ++val);
+            anagramKey.putIfAbsent(anagramCharKey, 1);
         }
+
         return anagramKey;
     }
 }
